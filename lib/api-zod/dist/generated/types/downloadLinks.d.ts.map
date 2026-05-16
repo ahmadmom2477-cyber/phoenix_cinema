@@ -1,0 +1,1 @@
+{"version":3,"file":"downloadLinks.d.ts","sourceRoot":"","sources":["../../../src/generated/types/downloadLinks.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAEnD,MAAM,WAAW,aAAa;IAC5B,KAAK,EAAE,YAAY,EAAE,CAAC;IACtB,mDAAmD;IACnD,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,4CAA4C;IAC5C,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,SAAS,EAAE,OAAO,CAAC;CACpB"}
