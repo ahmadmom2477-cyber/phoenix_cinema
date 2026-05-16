@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: phoenix-cinema
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      npm install -g pnpm@10 &&
+      pnpm install --frozen-lockfile &&
+      NODE_ENV=production pnpm --filter @workspace/am-cinema run build &&
+      pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PHOENIX_SUB_SECRET
+        sync: false
+      - key: PHOENIX_ADMIN_PASS
+        sync: false
