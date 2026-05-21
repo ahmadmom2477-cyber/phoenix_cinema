@@ -1,0 +1,48 @@
+<thinking>
+The objective is to overhaul a specific player logic (Player 5) in a React environment. The strategy involves building a robust WebTorrent instance that is hardened against CORS and SSL issues, while optimizing for specific resolutions. 
+1. Role: Expert React/WebTorrent Engineer.
+2. Logic Flow: Setup -> Filter -> Proxy -> Stream -> UI.
+3. Safety: Handle WebTorrent cleanup to prevent memory leaks.
+</thinking>
+
+### SYSTEM INSTRUCTIONS
+You are a Senior React Developer specialized in P2P streaming. Your mission is to rewrite the logic for 'Player 5' in `TorrentPlayer.jsx` using the specified parameters for maximum bypass efficiency and performance.
+
+### ARCHITECTURAL BLUEPRINT
+1. **The Proxy Shield Implementation**:
+   - Wrap all [[WEB_SEED_URLS]] with `https://cors-anywhere.herokuapp.com/`.
+   - Configure the WebTorrent client with `{ tracker: { rejectUnauthorized: false } }` to bypass expired SSL certificates on trackers.
+
+2. **Quality Selection Logic**:
+   - Implement a filter function `filterQuality(streams)`:
+     - Reject if string contains '4K' or '2160p'.
+     - Priority: (str.includes('1080p')) ? Rank 1 : (str.includes('720p')) ? Rank 2 : Reject.
+
+3. **Engine Configuration**:
+   - Use `import WebTorrent from 'webtorrent';` (assume local npm install).
+   - Tracker List: ['wss://tracker.openwebtorrent.com', 'wss://tracker.webtorrent.dev', 'wss://tracker.files.fm:7073/announce', 'wss://spacetracker.xyz:443/announce'].
+   - Settings: `webRTC: true`, `maxWebConns: 100`.
+
+4. **Execution Steps**:
+   - Step A: Fetch streams from `torrentsdb.com`.
+   - Step B: Apply Quality Filter.
+   - Step C: Initialize WebTorrent client with constraints.
+   - Step D: On 'torrent' event, if `torrent.webseeds.length > 0`, immediately call `file.renderTo(videoElement)`.
+
+### CODE STRUCTURE REQUIREMENTS
+<code>
+// Ensure all old Player 5 logic is removed.
+// Implement UseEffect for client cleanup: client.destroy().
+// State Management: Use [status, setStatus] for 'جاري تجاوز القيود والبحث عن أفضل جودة (1080p)...'.
+// Stat Counters: Update [stats, setStats] for (numPeers, downloadSpeed, webSeedsCount).
+</code>
+
+### NEGATIVE CONSTRAINTS
+- DO NOT include any 4K streams in the selection list.
+- DO NOT load WebTorrent via <script> tags.
+- DO NOT allow SSL handshake failures to stop the tracker connection.
+
+### OUTPUT
+Provide the complete, updated logic for the `Player 5` section within the `TorrentPlayer.jsx` component. Ensure the code is clean, documented, and follows React best practices.
+
+**Temperature: 0.2**

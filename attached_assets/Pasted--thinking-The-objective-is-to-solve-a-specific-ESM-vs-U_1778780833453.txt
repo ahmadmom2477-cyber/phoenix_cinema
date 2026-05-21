@@ -1,0 +1,96 @@
+<thinking>
+The objective is to solve a specific ESM vs UMD conflict in Vite by bypassing the bundler for a specific library (WebTorrent). 
+Step 1: Use CoT to explain why the export error happens (Vite treats the browser-dist as ESM or fails to transpile it correctly).
+Step 2: Implement dynamic script loading as the primary resolution path.
+Step 3: Structure the React component using CO-STAR principles to ensure high stability and clear output.
+</thinking>
+
+### ROLE
+You are a Senior Full-Stack Engineer specialized in React, Vite internals, and WebRTC technologies.
+
+### CONTEXT
+You are working on a file named `TorrentPlayer.jsx`. The environment is a Vite-based React app. There is a critical conflict where the WebTorrent library fails during the bundling phase or runtime initialization due to 'Unexpected keyword export'.
+
+### OBJECTIVE
+Refactor `TorrentPlayer.jsx` to dynamically load WebTorrent, initialize it safely via the window object, handle CORS issues, and optimize for low-RAM environments.
+
+### IMPLEMENTATION STRATEGY (Chain of Thought)
+1. **Dynamic Script Loading**: Use `document.createElement('script')` to load `/node_modules/webtorrent/dist/webtorrent.min.js`.
+2. **State Sync**: Create a state `isLoaded` to ensure the UI doesn't attempt to use the client before the script is ready.
+3. **Global Hook**: Access `window.WebTorrent` only after the `onload` event triggers.
+4. **CORS Proxy**: Prepend `https://cors-anywhere.herokuapp.com/` (or a similar proxy) to all WebSeed sources.
+5. **Resource Cap**: Filter `torrent.files` to ensure only 720p or 1080p files are rendered; block 4K/8K to save RAM.
+
+### CODE TEMPLATE & LOGIC
+<code>
+// [1] REMOVE ALL STATIC IMPORTS OF WEBTORRENT
+
+import React, { useEffect, useState, useRef } from 'react';
+
+const TorrentPlayer = ({ torrentId }) => {
+  const [isReady, setIsReady] = useState(false);
+  const clientRef = useRef(null);
+
+  useEffect(() => {
+    // [2] DYNAMIC SCRIPT INJECTION
+    const script = document.createElement('script');
+    script.src = '/node_modules/webtorrent/dist/webtorrent.min.js';
+    script.async = true;
+
+    script.onload = () => {
+      try {
+        // [3] GLOBAL NAMESPACE INITIALIZATION
+        if (window.WebTorrent) {
+          clientRef.current = new window.WebTorrent();
+          setIsReady(true);
+          console.log('WebTorrent Engine Loaded via Window');
+        }
+      } catch (err) {
+        console.error('Failed to init WebTorrent:', err);
+      }
+    };
+
+    document.body.appendChild(script);
+    return () => {
+      if (clientRef.current) clientRef.current.destroy();
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleAddTorrent = (id) => {
+     // [4] PROXY & ERROR HANDLING
+     const proxyId = id.startsWith('http') ? `https://cors-anywhere.herokuapp.com/${id}` : id;
+     
+     try {
+       clientRef.current.add(proxyId, (torrent) => {
+         // [5] QUALITY FILTERING (MAX 1080p)
+         const file = torrent.files.find(f => f.name.endsWith('.mp4') && !f.name.includes('2160p') && !f.name.includes('4K'));
+         // Render logic here...
+       });
+     } catch (e) {
+       console.error('Torrent Error:', e);
+     }
+  };
+
+  return (<div>{isReady ? 'Engine Online' : 'Loading Engine...'}</div>);
+};
+
+export default TorrentPlayer;
+</code>
+
+### CONSTRAINTS & RULES
+- --- NEGATIVE CONSTRAINT ---
+- NEVER use `import WebTorrent from 'webtorrent'`.
+- DO NOT allow playback of files with '4K', '2160p', or 'UHD' in the filename.
+- --- PERFORMANCE ---
+- Wrap the initialization in a `try-catch` block.
+- Use `useRef` for the client to prevent unnecessary re-instantiation.
+
+### AUDIENCE & TONE
+The output should be technical, concise, and focused on implementation accuracy.
+
+### OUTPUT FORMAT
+Return the refactored code block followed by a brief technical explanation of how the ESM/CJS conflict was resolved.
+
+--- 
+**Temperature Recommendation**: 0.2 (Strict adherence to technical requirements)
